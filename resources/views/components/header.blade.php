@@ -1,9 +1,10 @@
 <nav>
     <a href="{{ route('home') }}" class="nav-logo">Le Blog</a>
-    <div class="nav-links">
-        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a>
-        <a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Articles</a>
-        <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">Catégories</a>
-        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">À propos</a>
-    </div>
+    <ul class="nav-links">
+        <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Accueil</a></li>
+        <li><a href="{{ route('articles.index') }}">Articles</a></li>
+        <li><a href="{{ route('categories.index') }}">Catégories</a></li>
+        <li><a href="{{ route('about') }}">À propos</a></li>
+        <li><a href="{{ route('dashboard.index') }}">Dashboard</a></li>
+    </ul>
 </nav>

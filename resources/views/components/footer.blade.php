@@ -1,7 +1,8 @@
 <footer>
-    <p>&copy; {{ date('Y') }} Le Blog. Tous droits réservés.</p>
+    <span>© 2026 Le Blog. Tous droits réservés.</span>
     <div>
-        <a href="{{ route('home') }}">Accueil</a>
-        <a href="{{ route('dashboard.index') }}">Administration</a>
+        <a href="#">Mentions légales</a>
+        <a href="#">Confidentialité</a>
+        <a href="{{ route('dashboard.index') }}">Admin</a>
     </div>
 </footer>
