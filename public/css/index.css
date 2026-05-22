@@ -23,7 +23,42 @@ body {
     color: var(--ink);
     min-height: 100vh;
 }
+.about-content {
+    max-width: 800px;
+    margin: 2rem auto;
+}
 
+.about-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.about-section:last-child {
+    border-bottom: none;
+}
+
+.about-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+}
+
+.about-section p {
+    line-height: 1.8;
+    color: var(--muted);
+}
+
+.about-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.about-section li {
+    padding: 0.5rem 0;
+    color: var(--muted);
+}
 nav {
     border-bottom: 2px solid var(--ink);
     padding: 0 5%;
@@ -1487,6 +1522,61 @@ nav {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
     letter-spacing: -0.5px;
+}.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.category-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+.cat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.category-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.cat-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.cat-count {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+
+.cat-link {
+    display: inline-block;
+    font-size: 0.75rem;
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+}
+
+.cat-link:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
 .section-link {
@@ -2188,3 +2278,4 @@ nav {
 .article-layout {
     animation: fadeUp 0.5s 0.1s ease both;
 }
+

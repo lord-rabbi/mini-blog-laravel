@@ -45,8 +45,30 @@ Chaque root doit utiliser les directives `@yield` pour définir les zones dynami
 **Questions :**
 
 1. Quelle est la différence entre `@yield('title')` et `@yield('title', 'Valeur par défaut')` ?
+reponse:
+@yield('title') : Affiche le contenu de la section title. Si la section n'existe pas affiche rien.
+
+@yield('title', 'Valeur par défaut') : Affiche le contenu de la section title. Si elle n'existe pas → affiche "Valeur par défaut".
+
 2. Pourquoi utilise-t-on `@extends` plutôt que d'inclure le header et le footer manuellement dans chaque fichier de vue ?
+reponse:
+le code commun (header, footer, sidebar) n'est écrit qu'une seule fois
+
+Maintenance facilitée : une modification dans le layout impacte toutes les vues enfants
+
+Lisibilité : les vues enfants sont plus courtes et ne contiennent que ce qui est spécifique
 3. Comment s'assure-t-on qu'une vue du dashboard n'étende jamais accidentellement le layout public ?
+
+reponse:
+Nommage distinct : @extends('dashboard') dif @extends('app')
+
+Organisation des dossiers : toutes les vues dashboard sont dans resources/views/dashboard/
+
+Contrôleur dédié : DashboardController retourne toujours des vues du dossier dashboard/
+
+Vérification manuelle lors du développement
+
+
 
 ---
 
@@ -74,6 +96,31 @@ Chaque root doit utiliser les directives `@yield` pour définir les zones dynami
 **Questions :**
 
 1. Comment rendre la classe `active` d'un lien de la sidebar **dynamique** selon la route courante, en utilisant `request()->routeIs()` ou `Route::currentRouteName()` ?
+reponse:
+Méthode avec request()->routeIs() :
+
+blade
+<a href="{{ route('dashboard.index') }}" class="nav-item {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+    Dashboard
+</a>
+Méthode avec Route::currentRouteName() :
+
+blade
+<a href="{{ route('dashboard.index') }}" class="nav-item {{ Route::currentRouteName() == 'dashboard.index' ? 'active' : '' }}">
+    Dashboard
+</a>
+Différence :
+
+request()->routeIs() → plus flexible, accepte des motifs (dashboard.*)
+
+Route::currentRouteName() → comparaison exacte
+2. Pourquoi placer les composants dashboard dans un sous-dossier ?
+Avantage	Explication
+Organisation	Sépare clairement les composants publics des composants d'administration
+Évite les conflits	On peut avoir components/header.blade.php (public) et components/dashboard/header.blade.php (admin)
+Maintenance	Plus facile de trouver et modifier les composants d'une section spécifique
+Lisibilité	La structure du dossier reflète l'architecture de l'application
+
 2. Pourquoi est-il préférable de placer les composants du dashboard dans un sous-dossier `components/dashboard/` plutôt que directement dans `components/` ?
 
 ---
@@ -95,9 +142,45 @@ Dans le fichier `routes/web.php`, déclarez une route nommée pour chacune des v
 **Questions :**
 
 1. Quelle est la différence entre `Route::get()` et `Route::post()` ? Dans quel cas utilise-t-on l'un plutôt que l'autre ?
+
+Méthode	Utilisation	Exemple d'utilisation
+Route::get()	Récupérer des données (lecture)	Afficher une page, lister des articles, voir le détail d'un produit
+Route::post()	Envoyer/modifier des données (écriture)	Formulaire de contact, connexion, création d'article, ajout de commentaire
+Quand utiliser l'un plutôt que l'autre ?
+
+GET : Quand l'utilisateur veut voir des données (pas de modification)
+
+POST : Quand l'utilisateur veut envoyer des données qui modifient l'état du serveur
+
 2. Comment déclarer et nommer une route avec la méthode `->name()` ? Pourquoi les noms de routes sont-ils indispensables pour utiliser `route()` dans les vues Blade ?
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+Pourquoi les noms sont indispensables ?
+
+Sans nom (URL en dur)	Avec nom (route())
+<a href="/articles">Articles</a>	<a href="{{ route('articles.index') }}">Articles</a>
+Si l'URL change, il faut modifier TOUS les fichiers	Si l'URL change, on modifie UNE SEULE fois dans web.php
+Risque d'erreurs et de liens cassés	Plus maintenable et sécurisé
+C'est une variable dans l'URL qui permet de passer des données spécifiques.
+
+Déclaration :
+
+
+Route::get('/articles/{id}', [ArticleController::class, 'show'])->name('articles.show');
+
 3. Qu'est-ce qu'un paramètre de route dynamique comme `{id}` ? Comment le récupérer dans le contrôleur ?
+
+C'est une variable dans l'URL qui permet de passer des données spécifiques.
+
+Déclaration :
+
+php
+Route::get('/articles/{id}', [ArticleController::class, 'show'])->name('articles.show');
+
 4. Que se passe-t-il si deux routes ont la même URL mais des méthodes HTTP différentes (`GET` et `POST`) ?
+
+GET	Afficher le formulaire	L'utilisateur arrive sur la page
+POST	Traiter le formulaire	L'utilisateur soumet le formulaire
+Pourquoi c'est utile ? Une même URL peut avoir deux comportements différents selon l'action de l'utilisateur (afficher vs soumettre).
 
 ---
 
@@ -124,9 +207,41 @@ Exemple de routes attendues :
 **Questions :**
 
 1. Quelle est la syntaxe complète pour créer un groupe de routes avec un préfixe d'URL et un préfixe de nom en même temps ?
+
+La syntaxe complète est :
+
+Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/articles', [DashboardController::class, 'articles'])->name('articles');
+    Route::get('/users', [DashboardController::class, 'users'])->name('users');
+});
+prefix('dashboard') ajoute /dashboard devant toutes les URLs du groupe. name('dashboard.') ajoute dashboard. devant tous les noms des routes. Ainsi, la route ci-dessus aura l'URL /dashboard et le nom dashboard.index.
+
+
 2. Quelle est la différence entre `Route::prefix()` et `Route::middleware()` dans un groupe de routes ?
+Route::prefix() permet d'ajouter un segment d'URL devant toutes les routes du groupe, par exemple pour regrouper toutes les routes d'administration sous /admin.
+
+Route::middleware() permet d'appliquer des filtres ou des couches de sécurité à toutes les routes du groupe, par exemple middleware('auth') pour protéger les routes derrière une authentification, ou middleware('admin') pour réserver l'accès aux administrateurs.
+
+On peut les combiner : Route::prefix('admin')->middleware('auth')->group(function() { ... }) pour avoir des routes d'administration protégées derrière /admin.
+
 3. Qu'est-ce que `Route::resource()` ? Pour quelles ressources (articles, catégories, utilisateurs) serait-il pertinent de l'utiliser et quelles routes génère-t-il automatiquement ?
 
+Route::resource() est une méthode qui génère automatiquement un ensemble complet de routes pour les opérations CRUD (Create, Read, Update, Delete) sur une ressource. Au lieu d'écrire manuellement les sept routes nécessaires, une seule ligne suffit.
+
+Par exemple : Route::resource('articles', ArticleController::class);
+
+Cette seule ligne génère les routes suivantes : l'index qui liste tous les articles, le formulaire de création, l'enregistrement d'un nouvel article, l'affichage d'un article spécifique, le formulaire d'édition, la mise à jour et enfin la suppression. Chaque route est automatiquement nommée avec le préfixe articles. suivi de index, create, store, show, edit, update, destroy.
+
+Pour quelles ressources l'utiliser ?
+
+Articles : pertinent car on a besoin de toutes les opérations CRUD (lister, créer, afficher, modifier, supprimer)
+
+Catégories : pertinent pour les mêmes raisons (gestion complète des catégories)
+
+Utilisateurs : pertinent pour gérer les comptes utilisateurs (création, édition, suppression)
+
+Quand ne pas l'utiliser ? Pour les ressources où on n'a pas besoin de toutes les opérations, comme les commentaires où on a rarement besoin de formulaire de création (les commentaires sont créés sur la page publique) ou d'édition. Dans ce cas, on préfère créer les routes manuellement.
 ---
 
 ### Question 6 — Création des contrôleurs
@@ -153,14 +268,43 @@ Chaque méthode doit retourner sa vue correspondante avec `return view('...')`.
 **Questions :**
 
 1. Quelle est la commande artisan pour générer un contrôleur ? Quelle option ajouter pour générer directement un **contrôleur de ressource** avec toutes les méthodes CRUD ?
+La commande de base est : php artisan make:controller NomController
+
+Pour générer un contrôleur de ressource avec toutes les méthodes CRUD, on ajoute l'option --resource :
+
+php artisan make:controller ArticleController --resource
+
+Cela crée automatiquement un contrôleur avec les sept méthodes pré-remplies : index(), create(), store(), show(), edit(), update(), destroy().
+
 2. Quelle est la convention de nommage des méthodes d'un contrôleur de ressource Laravel (`index`, `show`, `create`, `store`, `edit`, `update`, `destroy`) ? À quelle action correspond chacune ?
+Méthode	Action correspondante
+index()	Affiche la liste complète de toutes les ressources (page d'accueil de la ressource)
+create()	Affiche le formulaire de création d'une nouvelle ressource
+store()	Enregistre et valide la nouvelle ressource dans la base de données (reçoit les données du formulaire de création)
+show($id)	Affiche le détail d'une ressource spécifique identifiée par son identifiant
+edit($id)	Affiche le formulaire d'édition pré-rempli avec les données d'une ressource existante
+update($id)	Met à jour la ressource dans la base de données avec les données du formulaire d'édition
+destroy($id)	Supprime définitivement la ressource de la base de données
+
+
 3. Quelle est la différence entre ces trois façons de passer des données à une vue depuis un contrôleur ?
    ```php
    return view('articles', ['posts' => $posts]);
    return view('articles', compact('posts'));
    return view('articles')->with('posts', $posts);
    ```
+Les trois façons sont fonctionnellement équivalentes : elles transmettent la variable $posts à la vue articles.
 
+Première façon : return view('articles', ['posts' => $posts]);
+On passe un tableau associatif où la clé 'posts' est le nom de la variable accessible dans la vue et la valeur $posts est la donnée. Cette syntaxe est explicite et permet de passer plusieurs variables facilement : ['posts' => $posts, 'title' => $title].
+
+Deuxième façon : return view('articles', compact('posts'));
+La fonction PHP compact() crée automatiquement un tableau associatif en utilisant le nom de la variable comme clé et sa valeur comme contenu. C'est la syntaxe la plus courte et la plus lisible quand les noms des variables dans le contrôleur et dans la vue sont identiques.
+
+Troisième façon : return view('articles')->with('posts', $posts);
+On utilise la méthode with() qui permet un chaînage fluide pour ajouter plusieurs variables : ->with('posts', $posts)->with('title', 'Mon titre'). Cette syntaxe est utile quand on veut ajouter conditionnellement des variables ou quand on préfère une approche orientée objet.
+
+Les développeurs Laravel préfèrent généralement compact() car elle est concise, mais les trois syntaxes sont valides et largement utilisées dans la communauté.
 ---
 
 ### Question 7 — Liens et navigation
